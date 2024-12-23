@@ -14,7 +14,7 @@ public class Worker {
     }
 
     // To calculate the collection fee for a parcel
-    private double calculateFee(Parcel parcel){
+    public double calculateFee(Parcel parcel){
         return parcel.getWeight() * 2 + parcel.getDaysInDepot() * 0.5;
 
     }

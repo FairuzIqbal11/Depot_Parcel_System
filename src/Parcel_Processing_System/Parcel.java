@@ -54,13 +54,13 @@ public class Parcel {
     public void setStatus(String status) {
         this.status = status;
     }
-   // toString method
+    // toString method
 
-   public String toString() {
-       return "Parcel: ID= " + parcelID + ", DaysInDepot= " + daysInDepot +
-               ", Weight= " + weight + ", Dimensions= " + dimensions +
-               ", Status= " + status;
-   }
+    public String toString() {
+        return "Parcel: ID= " + parcelID + ", DaysInDepot= " + daysInDepot +
+                ", Weight= " + weight + ", Dimensions= " + dimensions +
+                ", Status= " + status;
+    }
 
 
 

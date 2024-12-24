@@ -2,20 +2,24 @@ package Parcel_Processing_System;
 
 public class Worker {
 
-    public void processCustomer (Customer customer, ParcelMap parcelMap){
+    public double processCustomer(Customer customer, ParcelMap parcelMap) {
         Parcel parcel = parcelMap.getParcel(customer.getParcelID());
         if (parcel != null) {
-            double parcelFee = calculateFee(parcel);
-            parcelMap.removeParcel(customer.getParcelID());
-            System.out.println("Processed Customer: " + customer.getName() + ", Collection Fee: " + parcelFee);
-        } else{
-            System.out.println(" Parcel is not found for customer " + customer.getName());
+            double fee = calculateFee(parcel);
+            parcel.setStatus("collected"); // Update the status to collected
+            parcelMap.updateParcel(parcel); // Ensure the updated parcel is saved back
+            Log.getInstance().addLog("Processed Customer: " + customer.getName() + ", Fee: " + fee);
+            return fee;
+        } else {
+            Log.getInstance().addLog("Parcel not found for customer: " + customer.getName());
+            return 0; // No fee if the parcel is not found
         }
     }
 
-    // To calculate the collection fee for a parcel
-    public double calculateFee(Parcel parcel){
-        return parcel.getWeight() * 2 + parcel.getDaysInDepot() * 0.5;
 
+    public double calculateFee(Parcel parcel) {
+        double fee = parcel.getWeight() * 2 + parcel.getDaysInDepot() * 0.5;
+        Log.getInstance().addLog("Calculated Fee: " + fee + " for Parcel ID: " + parcel.getParcelID());
+        return fee;
     }
 }

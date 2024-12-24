@@ -1,4 +1,7 @@
 package Parcel_Processing_System;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Log {
     private static Log instance;
@@ -24,8 +27,17 @@ public class Log {
     }
 
     // To display all logs
-    public void displayLogs(){
-        System.out.println(logData.toString());
+    // Retrieve log data
+    public String getLogData() {
+        return logData.toString();
     }
+    public void writeLogToFile(String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(logData.toString());
+        } catch (IOException e) {
+            System.err.println("Error writing log to file: " + e.getMessage());
+        }
+    }
+
 
 }

@@ -9,6 +9,7 @@ public class Manager {
     private QueofCustomers customerQueue;
     private List<Parcel> collectedParcels;
     private double totalFeesCollected;
+    private List<Observer> observers = new ArrayList<>();
 
     public Manager() {
         this.parcelMap = new ParcelMap();
@@ -20,6 +21,7 @@ public class Manager {
     public void initializeSystem(String parcelFile, String customerFile) {
         loadParcelsFromFile(parcelFile);
         loadCustomersFromFile(customerFile);
+        notifyObservers(); // Notify observers after system initialization
     }
 
     private void loadParcelsFromFile(String filePath) {
@@ -39,10 +41,12 @@ public class Manager {
                     Log.getInstance().addLog("Invalid Parcel Data: " + line);
                 }
             }
+            notifyObservers(); // Notify after all parcels are loaded
         } catch (IOException e) {
             Log.getInstance().addLog("Error reading Parcel file: " + e.getMessage());
         }
     }
+
 
     private void loadCustomersFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -60,6 +64,7 @@ public class Manager {
                     Log.getInstance().addLog("Invalid Customer Data: " + line);
                 }
             }
+            notifyObservers(); // Notify after all customers are loaded
         } catch (IOException e) {
             Log.getInstance().addLog("Error reading Customer file: " + e.getMessage());
         }
@@ -80,6 +85,7 @@ public class Manager {
                 parcelMap.updateParcel(parcel); // Ensure the map is updated
                 collectedParcels.add(parcel);
                 totalFeesCollected += fee;
+                notifyObservers(); // Notify observers after processing each customer
             }
         }
 
@@ -91,6 +97,7 @@ public class Manager {
         }
 
         Log.getInstance().addLog("All customers have been processed.");
+        notifyObservers(); // Notify observers after processing all customers
     }
 
     private void validateUnlinkedParcels() {
@@ -104,6 +111,7 @@ public class Manager {
             }
             if (!isLinked && "waiting".equals(parcel.getStatus())) {
                 Log.getInstance().addLog("Parcel not linked to any customer: " + parcel.getParcelID());
+                notifyObservers(); // Notify observers for each unlinked parcel
             }
         }
     }
@@ -136,6 +144,7 @@ public class Manager {
         } catch (IOException e) {
             System.out.println("Error writing report: " + e.getMessage());
         }
+        notifyObservers(); // Notify observers after generating the report
     }
 
     private int countParcelsInDepot(int days) {
@@ -147,6 +156,7 @@ public class Manager {
         }
         return count;
     }
+
     public ParcelMap getParcelMap() {
         return this.parcelMap;
     }
@@ -155,9 +165,33 @@ public class Manager {
         return this.customerQueue;
     }
 
+    public interface Observer {
+        void update();
+    }
+
+    // Register an observer
+    public void registerObserver(Observer obs) {
+        observers.add(obs);
+    }
+
+    // Remove an observer
+    public void removeObserver(Observer obs) {
+        observers.remove(obs);
+    }
+
+    // Notify all observers of changes
+    public void notifyObservers() {
+        for (Observer obs : observers) {
+            obs.update();
+        }
+    }
 
     public static void main(String[] args) {
         Manager manager = new Manager();
+        // Register a LogObserver to confirm the notification mechanism works
+        manager.registerObserver(new MockObserver());
+        manager.registerObserver(new LogObserver());
+
         System.out.println("Initializing the system...");
         manager.initializeSystem("src/Parcels.csv", "src/Custs.csv");
 
@@ -172,6 +206,6 @@ public class Manager {
 
         manager.generateReport();
         System.out.println("Report generated successfully!");
+
     }
 }
-
